@@ -1,0 +1,88 @@
+{% extends 'hr/base.html' %}
+{% block title %}Employee List{% endblock %}
+{% block content %}
+<div class="card global-card shadow-sm">
+    <div class="card-header text-center">
+        <h3><i class="fas fa-users me-2"></i>Employee List</h3>
+        <p class="mb-0">Manage and view employee information</p>
+    </div>
+    <div class="card-body">
+        {% if employees %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle global-table">
+                <thead class="table-header">
+                    <tr>
+                        <th scope="col" class="text-nowrap"><i class=" me-1"></i>Sl.No</th>
+                        <th scope="col" class="text-nowrap"><i class="fas fa-user me-1"></i>Employee Name</th>
+                        <th scope="col" class="text-nowrap"><i class="fas fa-cogs me-1"></i>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in employees %}
+                    <tr>
+                        <td><strong>{{ loop.index }}</strong></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm me-3">
+                                    {% if employee.profile_pic %}
+                                    <img src="data:{{ employee.profile_pic_mimetype }};base64,{{ employee.profile_pic|b64encode }}" 
+                                         class="rounded-circle" width="40" height="40" alt="Profile">
+                                    {% else %}
+                                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" 
+                                         style="width: 40px; height: 40px;">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">{{ employee.name }}</h6>
+                                    <small class="text-muted">{{ employee.job_role or 'No role assigned' }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-row flex-md-row flex-column gap-1">
+                                <a href="/hr/attendance/{{ employee.id }}" 
+                                   class="btn btn-global-info btn-sm text-nowrap">
+                                    <i class="fas fa-clock me-1"></i>View Attendance
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No employees found</h5>
+            <p class="text-muted">Start by adding some employees to the system.</p>
+            <a href="/hr/add_employee" class="btn btn-global-success">
+                <i class="fas fa-user-plus me-2"></i>Add Employee
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.avatar-sm img {
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .d-flex.flex-row.flex-md-row.flex-column {
+        flex-direction: column !important;
+    }
+    
+    .d-flex.flex-row.flex-md-row.flex-column .btn {
+        margin-bottom: 5px;
+    }
+    
+    .d-flex.flex-row.flex-md-row.flex-column .btn:last-child {
+        margin-bottom: 0;
+    }
+}
+</style>
+{% endblock %} 

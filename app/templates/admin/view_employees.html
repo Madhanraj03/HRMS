@@ -1,0 +1,54 @@
+{% extends 'admin/base.html' %}
+{% block title %}View Employees - Admin{% endblock %}
+{% block content %}
+<div class="card global-card shadow-sm">
+    <div class="card-header">
+        <h3 class="mb-0">Employee Management</h3>
+        <p class=" mb-0">View all employees in the system</p>
+    </div>
+    <div class="card-body">
+        {% if employees %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle global-table">
+                <thead class="table-header">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Username</th>
+                        <th class="text-nowrap">Job Role</th>
+                        <th class="text-nowrap">Phone Number</th>
+                        <th class="text-nowrap">Unique ID</th>
+                        <th class="text-nowrap">Address</th>
+                        <th class="text-nowrap">Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in employees %}
+                    <tr>
+                        <td>{{ employee.id }}</td>
+                        <td><strong>{{ employee.name }}</strong></td>
+                        <td>{{ employee.username }}</td>
+                        <td>{{ employee.job_role or 'Not specified' }}</td>
+                        <td>{{ employee.phone_number }}</td>
+                        <td><code>{{ employee.unique_id_number }}</code></td>
+                        <td>{{ employee.address }}</td>
+                        <td>
+                            <span class="badge badge-admin-primary text-center">{{ employee.role }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-3">
+            <p class="text-muted">Total Employees: <strong>{{ employees|length }}</strong></p>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <h4 class="text-muted">No employees found</h4>
+            <p class="text-muted">There are currently no employees in the system.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

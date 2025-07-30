@@ -1,0 +1,66 @@
+{% extends 'hr/base.html' %}
+{% block title %}HR Dashboard{% endblock %}
+{% block content %}
+<div class="card global-card shadow-sm">
+    <div class="card-header text-center">
+        <h3><i class="fas fa-user-tie me-2"></i>Welcome, {{ hr_name or 'HR' }}!</h3>
+        <p class="lead">HR Dashboard Overview</p>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4 g-2">
+            <div class="col-12 col-md-3">
+                <a href="/hr/employees" class="btn btn-global-primary w-100">
+                    <i class="fas fa-users me-2"></i>View Employees
+                </a>
+            </div>
+            <div class="col-12 col-md-3">
+                <a href="/hr/employee_list" class="btn btn-global-secondary w-100">
+                    <i class="fas fa-list me-2"></i>Employee List
+                </a>
+            </div>
+            <div class="col-12 col-md-3">
+                <a href="/hr/add_employee" class="btn btn-global-success w-100">
+                    <i class="fas fa-user-plus me-2"></i>Add Employee
+                </a>
+            </div>
+            <div class="col-12 col-md-3">
+                <a href="/hr/attendance" class="btn btn-global-info w-100">
+                    <i class="fas fa-clock me-2"></i>Today's Attendance
+                </a>
+            </div>
+        </div>
+        <div class="row mb-4 g-2">
+            <div class="col-12 col-md-4">
+                <a href="/hr/employees" style="text-decoration:none;">
+                    <div class="card text-center mb-2 global-card">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-users me-2"></i>Total Employees</h5>
+                            <p class="card-text display-6">{{ total_employees or '0' }}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-md-4">
+                <a href="/hr/leave_requests" style="text-decoration:none;">
+                    <div class="card text-center mb-2 global-card">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-calendar-alt me-2"></i>Pending Leave Requests</h5>
+                            <p class="card-text display-6">{{ pending_leaves or '0' }}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-md-4">
+                <a href="/hr/attendance" style="text-decoration:none;">
+                    <div class="card text-center mb-2 global-card">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-exclamation-triangle me-2"></i>Attendance Issues</h5>
+                            <p class="card-text display-6">{{ attendance_issues or '0' }}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

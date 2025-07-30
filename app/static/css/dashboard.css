@@ -1,0 +1,111 @@
+/* dashboard.css - Unified simple color palette for all dashboard and login pages */
+body {
+    background: #f4f6f8;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+.card {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    border-radius: 1rem;
+    background: #fff;
+    padding: 2rem 1.5rem;
+    margin-top: 2rem;
+}
+.card-header {
+    background: #1976d2;
+    border-bottom: 1px solid #e0e0e0;
+    border-radius: 1rem 1rem 0 0;
+    color: #1976d2;
+    padding: 1.2rem 1rem 1rem 1rem;
+}
+.card-header h3, .card-header h2 {
+    font-weight: 600;
+    margin: 0;
+    color: #ffffff;
+}
+.lead {
+    color: #ffffff;
+    font-size: 1.1rem;
+}
+.btn-primary, .btn-info {
+    background: #1976d2;
+    border: none;
+    color: #fff;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: background 0.2s, color 0.2s;
+}
+.btn-primary:hover, .btn-info:hover {
+    background: #1565c0;
+    color: #fff;
+}
+.btn-secondary {
+    background: #757575;
+    border: none;
+    color: #fff;
+    font-weight: 500;
+    border-radius: 0.5rem;
+}
+.btn-secondary:hover {
+    background: #424242;
+    color: #fff;
+}
+.btn-home {
+    background: #e0e0e0;
+    color: #1976d2;
+    border: none;
+    border-radius: 0.5rem;
+}
+.btn-home:hover {
+    background: #bdbdbd;
+    color: #0d47a1;
+}
+.mt-4 {
+    margin-top: 2rem !important;
+}
+.mt-5 {
+    margin-top: 3rem !important;
+}
+.mb-3 {
+    margin-bottom: 1.5rem !important;
+}
+.text-center {
+    text-align: center !important;
+}
+.mt-4 h5 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1976d2;
+    margin-bottom: 1rem;
+}
+.mt-4 p {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+.alert-info {
+    background: #e3f2fd;
+    color: #1976d2;
+    border: none;
+}
+
+/* Responsive font sizes to match admin pages */
+@media (max-width: 576px) {
+    .card-header h3, .card-header h2 {
+        font-size: 1.25rem;
+    }
+    
+    .card-header p {
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-header h3, .card-header h2 {
+        font-size: 1.1rem;
+    }
+    
+    .card-header p {
+        font-size: 0.8rem;
+    }
+} 

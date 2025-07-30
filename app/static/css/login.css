@@ -1,0 +1,26 @@
+/* login.css - Custom styles for the login page */
+body {
+    background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card {
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1.5px 4px rgba(0,0,0,0.10);
+    border-radius: 1rem;
+}
+.card-header {
+    background: #fff;
+    border-bottom: none;
+}
+.btn-primary {
+    background: #f6d365;
+    border: none;
+    color: #fff;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+.btn-primary:hover {
+    background: #fda085;
+} 

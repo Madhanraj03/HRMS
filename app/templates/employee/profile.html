@@ -1,0 +1,54 @@
+{% extends 'employee/base.html' %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+<div class="card shadow-sm  mt-4">
+    <div class="card-header text-center">
+        <h3>My Profile</h3>
+    </div>
+    <div class="card-body">
+        {% if session['role'] == 'employee' %}
+        <div class="text-center mb-4">
+            {% if employee.profile_pic %}
+                <img src="data:{{ employee.profile_pic_mimetype }};base64,{{ employee.profile_pic|b64encode }}" 
+                     alt="Profile Picture" class="rounded-circle" style="width: 70px; height: 70px; object-fit: cover; border: 2px solid #1976d2;">
+            {% else %}
+                <img src="{{ url_for('static', filename='images/Profile.png') }}" 
+                     alt="Default Profile Picture" class="rounded-circle" style="width: 70px; height: 70px; object-fit: cover; border: 2px solid #1976d2;">
+            {% endif %}
+        </div>
+        {% endif %}
+        <div class="container-fluid">
+            <div class="row mb-3">
+                <div class="col-sm-4 fw-bold">Name</div>
+                <div class="col-sm-8">{{ employee.name }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-4 fw-bold">Job Role</div>
+                <div class="col-sm-8">{{ employee.job_role or '-' }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-4 fw-bold">Address</div>
+                <div class="col-sm-8">{{ employee.address }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-4 fw-bold">Phone Number</div>
+                <div class="col-sm-8">{{ employee.phone_number }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-4 fw-bold">Unique ID</div>
+                <div class="col-sm-8">{{ employee.unique_id_number }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-4 fw-bold">Username</div>
+                <div class="col-sm-8">{{ user.username }}</div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-12 col-md-6 offset-md-3 mb-2 d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="{{ url_for('employee.employee_edit_profile') }}" class="btn btn-warning" style="min-width: 120px;">Edit Profile</a>
+                <a href="/employee/dashboard" class="btn btn-home d-flex justify-content-center align-items-center" style="min-width: 120px;">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

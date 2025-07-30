@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HR Section{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <style>
+        :root {
+            --sidebar-bg: #1976d2;
+            --sidebar-text: #ffffff;
+            --sidebar-btn-bg: #3c90e3;
+            --sidebar-btn-hover: #005bb5;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .wrapper {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+        .sidebar {
+            width: 240px !important;
+            min-width: 240px !important;
+            max-width: 240px !important;
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            transition: transform 0.3s ease-in-out;
+            z-index: 1050;
+            flex-shrink: 0;
+        }
+        .sidebar-header {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .hr-sidebar-btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.75rem;
+            background: var(--sidebar-btn-bg);
+            color: var(--sidebar-text);
+            font-weight: 500;
+            border-radius: 0.5rem;
+            text-align: left;
+            text-decoration: none;
+            transition: 0.3s ease;
+        }
+        .hr-sidebar-btn:hover,
+        .hr-sidebar-btn.active {
+            background: var(--sidebar-btn-hover);
+            color: #fff;
+        }
+        .hr-sidebar-btn i {
+            margin-right: 0.5rem;
+            width: 16px;
+            text-align: center;
+        }
+        .main-content {
+            flex-grow: 1;
+            background: #f4f6f8;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        .toggle-btn {
+            display: none;
+            background: var(--sidebar-bg);
+            color: #fff;
+            border: none;
+            padding: 0.5rem;
+            font-size: 1.8rem;
+            width: 100%;
+            text-align: left;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 100vw;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                transform: translateX(-100%);
+            }
+            .sidebar.visible {
+                transform: translateX(0);
+            }
+            .sidebar-overlay.visible {
+                display: block;
+            }
+            .toggle-btn {
+                display: block;
+            }
+            .main-content {
+                padding: 1rem;
+                margin-top: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="toggle-btn d-md-none" onclick="toggleSidebar()"><strong>☰</strong></button>
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="wrapper">
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">HR Panel</div>
+            {# Remove or comment out the profile photo section for HR #}
+            {# <img src="{{ profile_pic_url }}" alt="Profile Picture"> #}
+            <a href="/hr/dashboard" class="hr-sidebar-btn{% if request.path == '/hr/dashboard' %} active{% endif %}">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="/hr/add_employee" class="hr-sidebar-btn{% if request.path == '/hr/add_employee' %} active{% endif %}">
+                <i class="fas fa-user-plus"></i> Add Employee
+            </a>
+            <a href="/hr/employees" class="hr-sidebar-btn{% if request.path == '/hr/employees' %} active{% endif %}">
+                <i class="fas fa-users"></i>Employee Details
+            </a>
+            <a href="/hr/employee_list" class="hr-sidebar-btn{% if request.path == '/hr/employee_list' %} active{% endif %}">
+                <i class="fas fa-list"></i> Employees List
+            </a>
+            <a href="/hr/attendance" class="hr-sidebar-btn{% if request.path == '/hr/attendance' %} active{% endif %}">
+                <i class="fas fa-clock"></i> Today's Attendance
+            </a>
+            <a href="/hr/leave_requests" class="hr-sidebar-btn{% if request.path == '/hr/leave_requests' %} active{% endif %}">
+                <i class="fas fa-calendar-alt"></i> Leave Requests
+            </a>
+            <a href="/logout" class="hr-sidebar-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </nav>
+        <main class="main-content" >
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('visible');
+            overlay.classList.toggle('visible');
+        }
+    </script>
+</body>
+</html> 

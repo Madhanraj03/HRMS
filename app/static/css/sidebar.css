@@ -1,0 +1,36 @@
+.sidebar-btn {
+    width: 100%;
+    margin-bottom: 0.75rem;
+    border-radius: 1rem;
+    padding: 0.5rem 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+    border: 2px solid #1976d2;
+    color: #1976d2;
+    background: #f4f6f8;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    text-align: center;
+    text-decoration: none !important;
+    letter-spacing: 0.5px;
+}
+.sidebar-btn:hover, .sidebar-btn.active {
+    background: #5094d8;
+    color: #fff;
+    text-decoration: none !important;
+    border-color: #1976d2;
+    box-shadow: 0 2px 12px rgba(25, 118, 210, 0.12);
+    text-decoration: none;
+} 
+
+.sidebar .sidebar-header {
+    font-size: 1.3rem;
+    font-weight: 700;
+    padding: 1.5rem 1rem 1rem 1rem;
+    color: #fff;
+}
+
+.sidebar {
+            min-height: 100vh;
+            background: #1976d2;
+            color: #fff;
+}

@@ -1,0 +1,51 @@
+{% extends 'employee/base.html' %}
+{% block title %}My Leave Requests{% endblock %}
+{% block content %}
+<div class="card global-card shadow-sm">
+    <div class="card-header text-center">
+        <h3><i class="fas fa-calendar-check me-2"></i>My Leave Requests</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle global-table">
+                <thead class="table-header">
+                    <tr>
+                        <th class="text-nowrap"><i class="fas fa-tag me-1"></i>Type</th>
+                        <th class="text-nowrap"><i class="fas fa-calendar-plus me-1"></i>Start</th>
+                        <th class="text-nowrap"><i class="fas fa-calendar-minus me-1"></i>End</th>
+                        <th class="text-nowrap"><i class="fas fa-comment me-1"></i>Reason</th>
+                        <th class="text-nowrap"><i class="fas fa-info-circle me-1"></i>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in leave_requests %}
+                    <tr>
+                        <td><span class="badge badge-global-warning">{{ req.leave_type }}</span></td>
+                        <td class="text-nowrap"><code>{{ req.start_date.strftime('%Y-%m-%d') }}</code></td>
+                        <td class="text-nowrap"><code>{{ req.end_date.strftime('%Y-%m-%d') }}</code></td>
+                        <td class="text-nowrap">{{ req.reason }}</td>
+                        <td class="text-nowrap">
+                            {% if req.status == 'Pending' %}
+                                <span class="badge badge-global-warning">Pending</span>
+                            {% elif req.status == 'Accepted' %}
+                                <span class="badge badge-global-success">Accepted</span>
+                            {% elif req.status == 'Rejected' %}
+                                <span class="badge badge-global-danger">Rejected</span>
+                            {% else %}
+                                <span class="badge badge-global-secondary">{{ req.status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            <i class="fas fa-calendar-alt text-muted me-2"></i>No leave requests found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

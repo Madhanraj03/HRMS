@@ -1,0 +1,109 @@
+{% extends 'hr/base.html' %}
+{% block title %}{{ employee.name }} - Attendance{% endblock %}
+{% block content %}
+<div class="card global-card shadow-sm">
+    <div class="card-header text-center">
+        <h3><i class="fas fa-clock me-2"></i>{{ employee.name }} - Attendance Records</h3>
+        <p class=" mb-0">View attendance history for this employee</p>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card global-card shadow-sm">
+                    <div class="card-header text-center" style="background: linear-gradient(135deg, #1976d2, #3c90e3); color: white;">
+                        <h6 class="mb-0"><i class="fas fa-user me-2"></i>Employee Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Name:</strong> {{ employee.name }}</p>
+                        <p><strong>Job Role:</strong> {{ employee.job_role or 'Not assigned' }}</p>
+                        <p><strong>ID:</strong> {{ employee.unique_id_number }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card global-card shadow-sm">
+                    <div class="card-header text-center" style="background: linear-gradient(135deg, #2e7d32, #4caf50); color: white;">
+                        <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Attendance Summary</h6>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Total Records:</strong> {{ attendance_records|length }}</p>
+                        <p><strong>Days with Check-in:</strong> {{ attendance_records|selectattr('checkin_time')|list|length }}</p>
+                        <p><strong>Days with Check-out:</strong> {{ attendance_records|selectattr('checkout_time')|list|length }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if attendance_records %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle global-table">
+                <thead class="table-header">
+                    <tr>
+                        <th scope="col" class="text-nowrap"><i class="me-1"></i>Sl.no</th>
+                        <th scope="col" class="text-nowrap"><i class=" fas fa-calendar me-1 "></i>Date</th>
+                        <th scope="col" class="text-nowrap"><i class="fas fa-info-circle me-1"></i>Status</th>
+                        <th scope="col" class="text-nowrap"><i class="fas fa-sign-in-alt me-1"></i>Check-in Time</th>
+                        <th scope="col" class="text-nowrap"><i class="fas fa-sign-out-alt me-1"></i>Check-out Time</th>
+                        <th scope="col" class="text-nowrap"><i class="fas fa-clock me-1"></i>Total Hours</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendance_records %}
+                    <tr>
+                        <td><strong>{{ loop.index }}</strong></td>
+                        <td class="text-nowrap">{{ record.date.strftime('%d %B, %Y') }}</td>
+                        <td>
+                            {% if record.checkin_time and record.checkout_time %}
+                            <span class="badge badge-global-success">Complete</span>
+                            {% elif record.checkin_time %}
+                            <span class="badge badge-global-warning">Checked In</span>
+                            {% else %}
+                            <span class="badge badge-global-danger">No Record</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if record.checkin_time %}
+                            {{ record.checkin_time.strftime('%I:%M %p') }}
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if record.checkout_time %}
+                            {{ record.checkout_time.strftime('%I:%M %p') }}
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if record.checkin_time and record.checkout_time %}
+                            {% set checkin_seconds = record.checkin_time.hour * 3600 + record.checkin_time.minute * 60 + record.checkin_time.second %}
+                            {% set checkout_seconds = record.checkout_time.hour * 3600 + record.checkout_time.minute * 60 + record.checkout_time.second %}
+                            {% set duration_seconds = checkout_seconds - checkin_seconds %}
+                            {% set hours = duration_seconds / 3600 %}
+                            <strong>{{ "%.1f"|format(hours) }} hrs</strong>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-clock fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No attendance records found</h5>
+            <p class="text-muted">This employee hasn't recorded any attendance yet.</p>
+        </div>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="/hr/employee_list" class="btn btn-global-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Employee List
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,40 @@
+{% extends 'employee/base.html' %}
+{% block title %}Edit Profile{% endblock %}
+{% block content %}
+<div class="card shadow-sm mt-4">
+    <div class="card-header text-center">
+        <h3>Edit My Profile</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            {% if session['role'] == 'employee' %}
+            <div class="text-center mb-4">
+                {% if employee.profile_pic %}
+                    <img src="data:{{ employee.profile_pic_mimetype }};base64,{{ employee.profile_pic|b64encode }}" 
+                         alt="Profile Picture" class="rounded-circle" style="width: 90px; height: 90px; object-fit: cover; border: 2px solid #1976d2;">
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/Profile.png') }}" 
+                         alt="Default Profile Picture" class="rounded-circle" style="width: 90px; height: 90px; object-fit: cover; border: 2px solid #1976d2;">
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="profile_pic" class="form-label">Profile Picture</label>
+                <input class="form-control" type="file" id="profile_pic" name="profile_pic" accept="image/*">
+            </div>
+            {% endif %}
+            <div class="mb-3">
+                <label for="phone_number" class="form-label">Phone Number</label>
+                <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ employee.phone_number }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="address" class="form-label">Address</label>
+                <textarea class="form-control" id="address" name="address" rows="2" required>{{ employee.address }}</textarea>
+            </div>
+            <div class="col-12 col-md-6 offset-md-3 mb-2 d-grid gap-2 d-md-flex justify-content-md-center">
+                <button type="submit" class="btn btn-primary" style="min-width: 120px;">Save Changes</button>
+                <a href="{{ url_for('main.employee_profile') }}" class="btn btn-secondary" style="min-width: 120px;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

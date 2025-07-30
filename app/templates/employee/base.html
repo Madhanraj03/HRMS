@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Employee Section{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+
+  <style>
+    :root {
+      --sidebar-bg: #1976d2;
+      --sidebar-text: #ffffff;
+      --sidebar-btn-bg: #3c90e3;
+      --sidebar-btn-hover: #005bb5;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .wrapper {
+      display: flex;
+      height: 100vh;
+      position: relative;
+    }
+
+    .sidebar {
+      min-width: 240px !important;
+      width: 240px !important;
+      max-width: 220px !important;
+      flex-shrink: 0 !important;
+      background: var(--sidebar-bg);
+      color: var(--sidebar-text);
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      transition: transform 0.3s ease-in-out;
+      z-index: 1050; /* Higher than toggle button */
+    }
+
+    .sidebar-header {
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .employee-sidebar-btn {
+      display: block;
+      width: 100%;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.75rem;
+      background: var(--sidebar-btn-bg);
+      color: var(--sidebar-text);
+      font-weight: 500;
+      border-radius: 0.5rem;
+      text-align: left;
+      text-decoration: none;
+      transition: 0.3s ease;
+    }
+
+    .employee-sidebar-btn:hover,
+    .employee-sidebar-btn.active {
+      background: var(--sidebar-btn-hover);
+      color: #fff;
+    }
+
+    .employee-sidebar-btn i {
+      margin-right: 0.5rem;
+      width: 16px;
+      text-align: center;
+    }
+
+    .main-content {
+      flex-grow: 1;
+      background: #f4f6f8;
+      /* background-image: url('{{ url_for("static", filename="images/bg.jpg") }}'); */
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+.toggle-btn {
+  display: none;
+  background: var(--sidebar-bg);
+  color: #fff;
+  border: none;
+  padding: 0.5rem;
+  font-size: 1.8rem; /* Increased from 1.2rem to 1.8rem */
+  width: 100%;
+  text-align: left;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 100vw;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1040;
+    }
+
+    @media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    transform: translateX(-100%);
+  }
+
+  .sidebar.visible {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay.visible {
+    display: block;
+  }
+
+  .toggle-btn {
+    display: block;
+  }
+
+  .main-content {
+    padding: 1rem;
+    margin-top: 40px; /* Push content down under header */
+  }
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- Toggle Button (goes under sidebar when open) -->
+  <button class="toggle-btn d-md-none" onclick="toggleSidebar()"><strong>☰</strong></button>
+
+  <!-- Overlay to close sidebar -->
+  <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <div class="wrapper">
+    <!-- Sidebar -->
+    <nav id="sidebar" class="sidebar">
+      <!-- <div class="sidebar-header nowrap">Employee Panel</div> -->
+      <div class="text-center mb-3 mt-3">
+        {% if profile_pic_url %}
+          <img src="{{ profile_pic_url }}" alt="Profile Picture" class="rounded-circle" style="width: 70px; height: 70px; object-fit: cover; border: 3px solid #fff;">
+        {% else %}
+        <img src="{{ url_for('static', filename='images/Profile.png') }}" alt="Default Profile Picture" class="rounded-circle" style="width: 70px; height: 70px; object-fit: cover; border: 3px solid #fff;">
+        {% endif %}
+      </div>
+      <a href="/employee/dashboard" class="employee-sidebar-btn{% if request.path == '/employee/dashboard' %} active{% endif %}">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+      </a>
+      <a href="/employee/attendance" class="employee-sidebar-btn{% if request.path == '/employee/attendance' %} active{% endif %}">
+        <i class="fas fa-clock"></i> Attendance
+      </a>
+      <a href="{{ url_for('main.leave_status') }}" class="employee-sidebar-btn{% if request.path == '/employee/leave_status' %} active{% endif %}">
+        <i class="fas fa-calendar-check"></i> My Leave Status
+      </a>
+      <a href="{{ url_for('main.employee_profile') }}" class="employee-sidebar-btn{% if request.path == '/employee/profile' %} active{% endif %}">
+        <i class="fas fa-user"></i> Profile
+      </a>
+      <a href="/logout" class="employee-sidebar-btn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      sidebar.classList.toggle('visible');
+      overlay.classList.toggle('visible');
+    }
+  </script>
+</body>
+</html>

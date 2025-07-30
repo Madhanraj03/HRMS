@@ -1,0 +1,55 @@
+{% extends 'admin/base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="card global-card shadow-sm">
+    <div class="card-header text-center">
+        <h3>Welcome, {{ admin_name or 'Admin' }}!</h3>
+        <p class="lead">Admin Dashboard Overview</p>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4 g-2">
+            <div class="col-12 col-md-4">
+                <a href="{{ url_for('admin.view_employees') }}" class="btn btn-admin-primary w-100">
+                    <i class="fas fa-users"></i> View Employees
+                </a>
+            </div>
+            <div class="col-12 col-md-4">
+                <a href="{{ url_for('admin.view_hr') }}" class="btn btn-admin-warning w-100">
+                    <i class="fas fa-user-tie"></i> View HR Users
+                </a>
+            </div>
+            <div class="col-12 col-md-4">
+                <a href="{{ url_for('admin.add_hr') }}" class="btn btn-admin-success w-100">
+                    <i class="fas fa-plus"></i> Add New HR
+                </a>
+            </div>
+        </div>
+        <div class="row mb-4 g-2">
+            <div class="col-12 col-md-4">
+                <div class="card text-center mb-2">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Users</h5>
+                        <p class="card-text display-6">{{ total_users or '0' }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card text-center mb-2">
+                    <div class="card-body">
+                        <h5 class="card-title">System Health</h5>
+                        <p class="card-text display-6">{{ system_health or 'Good' }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card text-center mb-2">
+                    <div class="card-body">
+                        <h5 class="card-title">Recent Activity</h5>
+                        <p class="card-text display-6">{{ recent_activity or '0' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

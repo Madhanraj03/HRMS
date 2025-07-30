@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Attendance - Check-In/Check-Out</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/attendance.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <script>
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleString();
+        }
+        setInterval(updateTime, 1000);
+        window.onload = updateTime;
+    </script>
+    <style>
+        @media screen and (max-width: 400px) {
+            .btn-global-danger {
+                background: #757575;
+                border: none;
+                color: #fff;
+                font-size: 15px;
+            }
+            .btn-global-success {
+                background: #1976d2;
+                border: none;
+                color: #fff;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-0">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+                <div class="card global-card shadow-sm">
+                    <div class="card-header text-center">
+                        <h3><i class="fas fa-clock me-2"></i>Employee Attendance</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3 text-center">
+                            <strong><i class="fas fa-calendar-alt me-2"></i>Current Date & Time:</strong>
+                            <div id="current-time" class="mb-2"></div>
+                        </div>
+                        <div class="mb-3 text-center">
+                            <strong><i class="fas fa-hourglass-half me-2"></i>Session Timer:</strong>
+                            <div id="timer" class="mb-2">
+                                {% if today_checkin %}
+                                     00:00:00
+                                {% else %}
+                                Not checked in yet
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row mb-3 g-2">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-global-success w-100" id="checkin-btn">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Check In
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-global-danger w-100" id="checkout-btn">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Check Out
+                                </button>
+                            </div>
+                        </div>
+                        <form id="attendance-form" method="POST" action="{{ url_for('main.employee_attendance') }}" style="display:none;">
+                            <input type="hidden" name="action" id="form-action" value="">
+                        </form>
+                        <div class="mt-4">
+                            <h5><i class="fas fa-calendar-day me-2"></i>Today's Attendance</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><i class="fas fa-sign-in-alt me-2"></i><strong>Check-In:</strong> {{ today_checkin or 'N/A' }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><i class="fas fa-sign-out-alt me-2"></i><strong>Check-Out:</strong> {{ today_checkout or 'N/A' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% if message %}
+                        <div class="alert alert-global-info mt-3">
+                            <i class="fas fa-info-circle me-2"></i>{{ message }}
+                        </div>
+                        {% endif %}
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <a href="{{ url_for('main.employee_dashboard') }}" class="btn btn-global-primary w-100">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Go to Employee Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let timerInterval;
+        let startTime;
+        let running = false;
+        const workedSeconds = {{ worked_seconds|default(0)|tojson }};
+        
+        function updateTimer(endTime = null) {
+            let elapsed;
+            if (endTime) {
+                elapsed = Math.floor((endTime - startTime) / 1000);
+            } else if (running) {
+                const now = new Date();
+                elapsed = Math.floor((now - startTime) / 1000);
+            } else {
+                elapsed = 0;
+            }
+            const hours = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+            const seconds = String(elapsed % 60).padStart(2, '0');
+            document.getElementById('timer').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        window.onload = function() {
+            const backendCheckin = "{{ today_checkin_24|default('') }}";
+            const backendCheckout = "{{ today_checkout_24|default('') }}";
+            if (backendCheckin && backendCheckin.split(':').length === 3) {
+                const now = new Date();
+                const [h, m, s] = backendCheckin.split(':');
+                startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, s);
+                if (backendCheckout && backendCheckout.split(':').length === 3) {
+                    const [eh, em, es] = backendCheckout.split(':');
+                    const endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), eh, em, es);
+                    updateTimer(endTime);
+                    running = false;
+                } else {
+                    running = true;
+                    updateTimer();
+                    timerInterval = setInterval(updateTimer, 1000);
+                }
+            } else {
+                document.getElementById('timer').textContent = "00:00:00";
+                running = false;
+            }
+        };
+
+        document.getElementById('checkin-btn').addEventListener('click', function(event) {
+            document.getElementById('form-action').value = 'checkin';
+            document.getElementById('attendance-form').submit();
+        });
+        document.getElementById('checkout-btn').addEventListener('click', function(event) {
+            document.getElementById('form-action').value = 'checkout';
+            document.getElementById('attendance-form').submit();
+        });
+    </script>
+</body>
+</html> 
