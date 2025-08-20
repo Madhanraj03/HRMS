@@ -484,15 +484,33 @@ def employee_attendance_detail(employee_id):
             elif not rec.checkout_time:
                 status = "Checked In"
             
+            import pytz
+            utc = pytz.utc
+            ist = pytz.timezone('Asia/Kolkata')
+            if rec.checkin_time:
+                dt_utc = datetime.combine(rec.date, rec.checkin_time).replace(tzinfo=utc)
+                dt_ist = dt_utc.astimezone(ist)
+                checkin_time_str = dt_ist.strftime('%I:%M %p')
+                # Calculate late login based on IST
+                late_login = dt_ist.time() > datetime.strptime('09:30:00', '%H:%M:%S').time()
+            else:
+                checkin_time_str = '-'
+                late_login = False
+            if rec.checkout_time:
+                dt_utc = datetime.combine(rec.date, rec.checkout_time).replace(tzinfo=utc)
+                dt_ist = dt_utc.astimezone(ist)
+                checkout_time_str = dt_ist.strftime('%I:%M %p')
+            else:
+                checkout_time_str = '-'
             attendance_list.append({
                 'date': rec.date.strftime('%Y-%m-%d'),
                 'day_name': rec.date.strftime('%A'),
-                'checkin_time': rec.checkin_time.strftime('%I:%M %p') if rec.checkin_time else '-',
-                'checkout_time': rec.checkout_time.strftime('%I:%M %p') if rec.checkout_time else '-',
+                'checkin_time': checkin_time_str,
+                'checkout_time': checkout_time_str,
                 'duration': duration or '-',
                 'duration_hours': duration_hours,
                 'status': status,
-                'late_login': rec.late_login
+                'late_login': late_login
             })
         else:
             # Check if it's a holiday (Sunday or second Saturday)
@@ -580,13 +598,31 @@ def view_attendance():
             minutes = (total_seconds % 3600) // 60
             seconds = total_seconds % 60
             duration = f"{hours:02}:{minutes:02}:{seconds:02}"
+        import pytz
+        utc = pytz.utc
+        ist = pytz.timezone('Asia/Kolkata')
+        if rec.checkin_time:
+            dt_utc = datetime.combine(rec.date, rec.checkin_time).replace(tzinfo=utc)
+            dt_ist = dt_utc.astimezone(ist)
+            checkin_time_str = dt_ist.strftime('%I:%M:%S %p')
+            # Calculate late login based on IST
+            late_login = dt_ist.time() > datetime.strptime('09:30:00', '%H:%M:%S').time()
+        else:
+            checkin_time_str = '-'
+            late_login = False
+        if rec.checkout_time:
+            dt_utc = datetime.combine(rec.date, rec.checkout_time).replace(tzinfo=utc)
+            dt_ist = dt_utc.astimezone(ist)
+            checkout_time_str = dt_ist.strftime('%I:%M:%S %p')
+        else:
+            checkout_time_str = '-'
         attendance_list.append({
             'employee_name': rec.employee.name,
             'date': rec.date.strftime('%Y-%m-%d'),
-            'checkin_time': rec.checkin_time.strftime('%I:%M:%S %p') if rec.checkin_time else '-',
-            'checkout_time': rec.checkout_time.strftime('%I:%M:%S %p') if rec.checkout_time else '-',
+            'checkin_time': checkin_time_str,
+            'checkout_time': checkout_time_str,
             'duration': duration or '-',
-            'late_login': rec.late_login
+            'late_login': late_login
         })
     return render_template('hr/view_attendance.html', attendance=attendance_list)
 
