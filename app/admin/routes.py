@@ -165,7 +165,7 @@ def view_users():
                     import pytz
                     utc = pytz.utc
                     ist = pytz.timezone('Asia/Kolkata')
-                    dt_utc = today_attendance.checkin_time.replace(tzinfo=utc)
+                    dt_utc = datetime.combine(today_attendance.date, today_attendance.checkin_time).replace(tzinfo=utc)
                     dt_ist = dt_utc.astimezone(ist)
                     user_info['attendance_stats']['login_time'] = dt_ist.strftime('%I:%M %p')
                 
@@ -176,7 +176,7 @@ def view_users():
                     import pytz
                     utc = pytz.utc
                     ist = pytz.timezone('Asia/Kolkata')
-                    dt_utc = last_attendance.checkout_time.replace(tzinfo=utc)
+                    dt_utc = datetime.combine(last_attendance.date, last_attendance.checkout_time).replace(tzinfo=utc)
                     dt_ist = dt_utc.astimezone(ist)
                     user_info['attendance_stats']['last_checkout'] = dt_ist.strftime('%I:%M %p - %Y-%m-%d')
                 
