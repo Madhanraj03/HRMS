@@ -1,7 +1,7 @@
 {% extends 'hr/base.html' %}
 {% block title %}Edit Employee{% endblock %}
 {% block content %}
-<div class="card shadow-sm">
+    <div class="card global-card">
     <div class="card-header text-center">
         <h3>Edit Employee</h3>
     </div>
@@ -35,10 +35,6 @@
                 <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
             </div>
             <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="text" class="form-control" id="password" name="password" value="{{ user.password }}" required>
-            </div>
-            <div class="mb-3">
                 <label for="salary" class="form-label">
                     <i class="fa-solid fa-indian-rupee-sign"></i> Salary
                 </label>
@@ -51,6 +47,12 @@
             </div>
             <button type="submit" class="btn btn-primary w-100">Update Employee</button>
         </form>
+        
+        <!-- Password Reset -->
+        <a href="/hr/reset_password/{{ employee.id }}" class="btn btn-warning btn-sm mt-3">
+            <i class="fas fa-key me-1"></i> Reset Password
+        </a>
+        
         <div class="row mt-4">
             <div class="col-12">
                 <a href="/hr/employees" class="btn btn-home w-100">Back to Employees List</a>

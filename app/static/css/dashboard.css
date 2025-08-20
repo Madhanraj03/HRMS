@@ -9,7 +9,7 @@ body {
     border-radius: 1rem;
     background: #fff;
     padding: 2rem 1.5rem;
-    margin-top: 2rem;
+    /* margin-top: 2rem; */
 }
 .card-header {
     background: #1976d2;
@@ -55,10 +55,12 @@ body {
     color: #1976d2;
     border: none;
     border-radius: 0.5rem;
+    font-weight: 600;
 }
 .btn-home:hover {
     background: #bdbdbd;
     color: #0d47a1;
+    font-weight: 600;
 }
 .mt-4 {
     margin-top: 2rem !important;

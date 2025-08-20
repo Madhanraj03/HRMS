@@ -1,87 +1,293 @@
 {% extends 'hr/base.html' %}
 {% block title %}{{ employee.name }} - Attendance{% endblock %}
 {% block content %}
-<div class="card global-card shadow-sm">
+<style>
+    .status-holiday {
+        color: #6f42c1;
+        font-weight: bold;
+    }
+    .badge-global-purple {
+        background: linear-gradient(135deg, #1976d2, #3c90e3);
+        color: white;
+    }
+    .filter-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .quick-filter-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+    .quick-filter-buttons .btn {
+        min-width: 80px;
+        padding: 8px 16px;
+        font-size: 14px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+    @media (max-width: 768px) {
+        .quick-filter-buttons .btn {
+            min-width: 70px;
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+        .quick-filter-buttons {
+            gap: 6px;
+        }
+    }
+    @media (max-width: 480px) {
+        .quick-filter-buttons .btn {
+            min-width: 60px;
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+        .quick-filter-buttons {
+            gap: 4px;
+        }
+    }
+    
+    /* Sorting styles */
+    .sortable {
+        transition: background-color 0.2s ease;
+    }
+    
+    .sortable:hover {
+        background-color: rgba(25, 118, 210, 0.1);
+    }
+    
+    .sort-icon {
+        opacity: 0.5;
+        transition: opacity 0.2s ease;
+    }
+    
+    .sortable:hover .sort-icon {
+        opacity: 1;
+    }
+    
+    .sort-icon.text-primary {
+        opacity: 1;
+    }
+    
+    #sortSelect {
+        min-width: 150px;
+    }
+    
+    @media (max-width: 768px) {
+        #sortSelect {
+            min-width: 120px;
+        }
+    }
+</style>
+    <div class="card global-card">
     <div class="card-header text-center">
         <h3><i class="fas fa-clock me-2"></i>{{ employee.name }} - Attendance Records</h3>
         <p class=" mb-0">View attendance history for this employee</p>
     </div>
     <div class="card-body">
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card global-card shadow-sm">
-                    <div class="card-header text-center" style="background: linear-gradient(135deg, #1976d2, #3c90e3); color: white;">
-                        <h6 class="mb-0"><i class="fas fa-user me-2"></i>Employee Information</h6>
-                    </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <form method="GET" class="row g-3" id="filterForm">
+                <div class="col-md-4">
+                    <label for="start_date" class="form-label"><i class="fas fa-calendar me-1"></i>Start Date</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date }}" max="{{ end_date }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="end_date" class="form-label"><i class="fas fa-calendar me-1"></i>End Date</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date }}" min="{{ start_date }}">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-global-primary me-2" id="filterBtn">
+                        <i class="fas fa-search me-1"></i>Filter
+                    </button>
+                    <a href="/hr/attendance/{{ employee.id }}" class="btn btn-global-secondary">
+                        <i class="fas fa-refresh me-1"></i>Reset
+                    </a>
+                </div>
+            </form>
+            <div class="mt-2">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Showing attendance from {{ start_date }} to {{ end_date }} 
+                    ({{ total_days }} days total)
+                </small>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row mb-4 g-3">
+            <div class="col-md-3">
+                <div class="card text-center global-card">
                     <div class="card-body">
-                        <p><strong>Name:</strong> {{ employee.name }}</p>
-                        <p><strong>Job Role:</strong> {{ employee.job_role or 'Not assigned' }}</p>
-                        <p><strong>ID:</strong> {{ employee.unique_id_number }}</p>
+                        <h6 class="card-title text-primary">
+                            <i class="fas fa-calendar-check me-2"></i>Total Days
+                        </h6>
+                        <p class="card-text h3">{{ total_days }}</p>
+                        <small class="text-muted">In selected range</small>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card global-card shadow-sm">
-                    <div class="card-header text-center" style="background: linear-gradient(135deg, #2e7d32, #4caf50); color: white;">
-                        <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Attendance Summary</h6>
-                    </div>
+            <div class="col-md-3">
+                <div class="card text-center global-card">
                     <div class="card-body">
-                        <p><strong>Total Records:</strong> {{ attendance_records|length }}</p>
-                        <p><strong>Days with Check-in:</strong> {{ attendance_records|selectattr('checkin_time')|list|length }}</p>
-                        <p><strong>Days with Check-out:</strong> {{ attendance_records|selectattr('checkout_time')|list|length }}</p>
+                        <h6 class="card-title text-success">
+                            <i class="fas fa-check-circle me-2"></i>Present Days
+                        </h6>
+                        <p class="card-text h3">{{ present_days }}</p>
+                        <small class="text-muted">With attendance</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center global-card">
+                    <div class="card-body">
+                        <h6 class="card-title text-info">
+                            <i class="fas fa-clock me-2"></i>Total Hours
+                        </h6>
+                        <p class="card-text h3">{{ total_hours }}</p>
+                        <small class="text-muted">Hours worked</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center global-card">
+                    <div class="card-body">
+                        <h6 class="card-title text-warning">
+                            <i class="fas fa-percentage me-2"></i>Attendance Rate
+                        </h6>
+                        <p class="card-text h3">
+                            {% if working_days > 0 %}
+                                {{ ((present_days / working_days) * 100) | round(1) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </p>
+                        <small class="text-muted">Present vs Working Days</small>
                     </div>
                 </div>
             </div>
         </div>
 
+
+
         {% if attendance_records %}
+        <!-- Sort Options -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <label for="sortSelect" class="form-label me-2 mb-0">
+                        <i class="fas fa-sort me-1"></i>Sort by:
+                    </label>
+                    <select class="form-select form-select-sm" id="sortSelect" style="width: auto;">
+                        <option value="date">Date (Default)</option>
+                        <option value="duration">Duration (Hours)</option>
+                        <option value="checkin">Check-in Time</option>
+                        <option value="checkout">Check-out Time</option>
+                        <option value="status">Status</option>
+                    </select>
+                    <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="sortDirection" onclick="toggleSortDirection()">
+                        <i class="fas fa-sort-up" id="sortIcon"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Click column headers to sort or use the dropdown above
+                </small>
+            </div>
+        </div>
+        
         <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle global-table">
+            <table class="table table-bordered table-hover align-middle global-table" id="attendanceTable">
                 <thead class="table-header">
                     <tr>
                         <th scope="col" class="text-nowrap"><i class="me-1"></i>Sl.no</th>
-                        <th scope="col" class="text-nowrap"><i class=" fas fa-calendar me-1 "></i>Date</th>
-                        <th scope="col" class="text-nowrap"><i class="fas fa-info-circle me-1"></i>Status</th>
-                        <th scope="col" class="text-nowrap"><i class="fas fa-sign-in-alt me-1"></i>Check-in Time</th>
-                        <th scope="col" class="text-nowrap"><i class="fas fa-sign-out-alt me-1"></i>Check-out Time</th>
-                        <th scope="col" class="text-nowrap"><i class="fas fa-clock me-1"></i>Total Hours</th>
+                        <th scope="col" class="text-nowrap sortable" data-sort="date" style="cursor: pointer;">
+                            <i class="fas fa-calendar me-1"></i>Date
+                            <i class="fas fa-sort ms-1 sort-icon"></i>
+                        </th>
+                        <th scope="col" class="text-nowrap sortable" data-sort="day" style="cursor: pointer;">
+                            <i class="fas fa-calendar-day me-1"></i>Day
+                            <i class="fas fa-sort ms-1 sort-icon"></i>
+                        </th>
+                        <th scope="col" class="text-nowrap sortable" data-sort="status" style="cursor: pointer;">
+                            <i class="fas fa-info-circle me-1"></i>Status
+                            <i class="fas fa-sort ms-1 sort-icon"></i>
+                        </th>
+                        <th scope="col" class="text-nowrap sortable" data-sort="checkin" style="cursor: pointer;">
+                            <i class="fas fa-sign-in-alt me-1"></i>Check-in Time
+                            <i class="fas fa-sort ms-1 sort-icon"></i>
+                        </th>
+                        <th scope="col" class="text-nowrap sortable" data-sort="checkout" style="cursor: pointer;">
+                            <i class="fas fa-sign-out-alt me-1"></i>Check-out Time
+                            <i class="fas fa-sort ms-1 sort-icon"></i>
+                        </th>
+                        <th scope="col" class="text-nowrap sortable" data-sort="duration" style="cursor: pointer;">
+                            <i class="fas fa-clock me-1"></i>Duration
+                            <i class="fas fa-sort ms-1 sort-icon"></i>
+                        </th>
+                        <th scope="col" class="text-nowrap sortable" data-sort="late_login" style="cursor: pointer;">
+                            <i class="fas fa-exclamation-triangle me-1"></i>Login Status
+                            <i class="fas fa-sort ms-1 sort-icon"></i>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for record in attendance_records %}
                     <tr>
                         <td><strong>{{ loop.index }}</strong></td>
-                        <td class="text-nowrap">{{ record.date.strftime('%d %B, %Y') }}</td>
-                        <td>
-                            {% if record.checkin_time and record.checkout_time %}
-                            <span class="badge badge-global-success">Complete</span>
-                            {% elif record.checkin_time %}
-                            <span class="badge badge-global-warning">Checked In</span>
-                            {% else %}
-                            <span class="badge badge-global-danger">No Record</span>
-                            {% endif %}
+                        <td class="text-nowrap">
+                            <code style="color: black;">{{ record.date }}</code>
+                        </td>
+                        <td class="text-nowrap">
+                            <span class="badge badge-global-secondary">{{ record.day_name }}</span>
                         </td>
                         <td>
-                            {% if record.checkin_time %}
-                            {{ record.checkin_time.strftime('%I:%M %p') }}
+                            {% if record.status == 'Complete' %}
+                            <span class="badge badge-global-success">
+                                <i class="fas fa-check-circle me-1"></i>{{ record.status }}
+                            </span>
+                            {% elif record.status == 'Checked In' %}
+                            <span class="badge badge-global-warning">
+                                <i class="fas fa-clock me-1"></i>{{ record.status }}
+                            </span>
+                            {% elif record.status == 'Absent' %}
+                            <span class="badge badge-global-danger">
+                                <i class="fas fa-times-circle me-1"></i>{{ record.status }}
+                            </span>
+                            {% elif record.status == 'Holiday' %}
+                            <span class="badge badge-global-purple">
+                                <i class="fas fa-umbrella-beach me-1"></i>{{ record.status }}
+                            </span>
+                            {% else %}
+                            <span class="badge badge-global-danger">
+                                <i class="fas fa-exclamation-triangle me-1"></i>{{ record.status }}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="text-nowrap">{{ record.checkin_time }}</td>
+                        <td class="text-nowrap">{{ record.checkout_time }}</td>
+                        <td class="text-nowrap">
+                            {% if record.duration != '-' %}
+                            <span class="badge badge-global-info">{{ record.duration }}</span>
                             {% else %}
                             <span class="text-muted">-</span>
                             {% endif %}
                         </td>
-                        <td>
-                            {% if record.checkout_time %}
-                            {{ record.checkout_time.strftime('%I:%M %p') }}
-                            {% else %}
-                            <span class="text-muted">-</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if record.checkin_time and record.checkout_time %}
-                            {% set checkin_seconds = record.checkin_time.hour * 3600 + record.checkin_time.minute * 60 + record.checkin_time.second %}
-                            {% set checkout_seconds = record.checkout_time.hour * 3600 + record.checkout_time.minute * 60 + record.checkout_time.second %}
-                            {% set duration_seconds = checkout_seconds - checkin_seconds %}
-                            {% set hours = duration_seconds / 3600 %}
-                            <strong>{{ "%.1f"|format(hours) }} hrs</strong>
+                        <td class="text-nowrap">
+                            {% if record.late_login %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Late Login
+                            </span>
+                            {% elif record.status == 'Complete' or record.status == 'Checked In' %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-check me-1"></i>On Time
+                            </span>
                             {% else %}
                             <span class="text-muted">-</span>
                             {% endif %}
@@ -91,11 +297,19 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Export Button -->
+        <div class="text-center mt-4">
+            <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#exportModal">
+                <i class="fas fa-download me-2"></i>Export Attendance Report
+            </button>
+        </div>
+
         {% else %}
         <div class="text-center py-5">
             <i class="fas fa-clock fa-3x text-muted mb-3"></i>
             <h5 class="text-muted">No attendance records found</h5>
-            <p class="text-muted">This employee hasn't recorded any attendance yet.</p>
+            <p class="text-muted">This employee hasn't recorded any attendance for the selected period.</p>
         </div>
         {% endif %}
 
@@ -106,4 +320,526 @@
         </div>
     </div>
 </div>
+
+<!-- Export Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header py-2" style="background: linear-gradient(135deg, #1976d2, #3c90e3); color: white;">
+                <h6 class="modal-title mb-0" id="exportModalLabel">
+                    <i class="fas fa-download me-2"></i>Export Attendance Report
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-2">
+                <div class="row g-2">
+                    <div class="col-12">
+                        <div class="card border-0 bg-light" style="box-shadow: 0 4px 8px rgba(0,0,0,0.3), 0 8px 16px rgba(0,0,0,0.2);">
+                            <div class="card-body text-center py-2">
+                                <h6 class="card-title text-primary mb-1">
+                                    <i class="fas fa-file-excel me-2"></i>Export to Excel
+                                </h6>
+                                <p class="card-text text-muted small mb-2">Download detailed attendance data in Excel format with calculations and formatting.</p>
+                                <button type="button" class="btn btn-success w-100" onclick="exportToExcel()">
+                                    <i class="fas fa-file-excel me-2"></i>Export to Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card border-0 bg-light" style="box-shadow: 0 4px 8px rgba(0,0,0,0.3), 0 8px 16px rgba(0,0,0,0.2);">
+                            <div class="card-body text-center py-2">
+                                <h6 class="card-title text-danger mb-1">
+                                    <i class="fas fa-file-pdf me-2"></i>Export to PDF
+                                </h6>
+                                <p class="card-text text-muted small mb-2">Generate a professional PDF report suitable for printing and sharing.</p>
+                                <button type="button" class="btn btn-danger w-100" onclick="exportToPDF()">
+                                    <i class="fas fa-file-pdf me-2"></i>Export to PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2 p-2 bg-info bg-opacity-10 rounded">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        <strong>Report includes:</strong> Employee details, attendance records, working hours, and summary statistics for the selected date range.
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+// Date validation and form handling
+document.addEventListener('DOMContentLoaded', function() {
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    const filterForm = document.getElementById('filterForm');
+    
+    // Update min/max attributes when dates change
+    startDateInput.addEventListener('change', function() {
+        endDateInput.min = this.value;
+        if (endDateInput.value && endDateInput.value < this.value) {
+            endDateInput.value = this.value;
+        }
+    });
+    
+    endDateInput.addEventListener('change', function() {
+        startDateInput.max = this.value;
+        if (startDateInput.value && startDateInput.value > this.value) {
+            startDateInput.value = this.value;
+        }
+    });
+    
+    // Form validation
+    filterForm.addEventListener('submit', function(e) {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        
+        if (startDate > endDate) {
+            e.preventDefault();
+            alert('Start date cannot be after end date!');
+            return false;
+        }
+        
+        // Check if date range is too large (optional - limit to 1 year)
+        const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+        if (daysDiff > 365) {
+            if (!confirm('You are requesting a large date range (' + daysDiff + ' days). This may take a while to load. Continue?')) {
+                e.preventDefault();
+                return false;
+            }
+        }
+        
+        // Show loading state
+        const filterBtn = document.getElementById('filterBtn');
+        filterBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Loading...';
+        filterBtn.disabled = true;
+    });
+    
+    // Quick date range buttons
+    const quickButtons = document.createElement('div');
+    quickButtons.className = 'mt-2';
+    quickButtons.innerHTML = `
+        <small class="text-muted me-3">Quick filters:</small>
+        <div class="quick-filter-buttons">
+            <button type="button" class="btn btn-sm" style="background-color: #1976d2; color: white; border-color: #1976d2;font-weight: bold;" onclick="setDateRange('today')">Today</button>
+            <button type="button" class="btn btn-sm" style="background-color: #1976d2; color: white; border-color: #1976d2;font-weight: bold;" onclick="setDateRange('week')">This Week</button>
+            <button type="button" class="btn btn-sm" style="background-color: #1976d2; color: white; border-color: #1976d2;font-weight: bold;" onclick="setDateRange('month')">This Month</button>
+            <button type="button" class="btn btn-sm" style="background-color: #1976d2; color: white; border-color: #1976d2;font-weight: bold;" onclick="setDateRange('quarter')">This Quarter</button>
+        </div>
+    `;
+    
+    const filterSection = document.querySelector('.filter-section');
+    filterSection.appendChild(quickButtons);
+});
+
+function setDateRange(range) {
+    const today = new Date();
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    
+    let startDate, endDate;
+    
+    switch(range) {
+        case 'today':
+            startDate = today;
+            endDate = today;
+            break;
+        case 'week':
+            startDate = new Date(today.getTime() - (today.getDay() * 24 * 60 * 60 * 1000));
+            endDate = today;
+            break;
+        case 'month':
+            startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            endDate = today;
+            break;
+        case 'quarter':
+            const quarter = Math.floor(today.getMonth() / 3);
+            startDate = new Date(today.getFullYear(), quarter * 3, 1);
+            endDate = today;
+            break;
+    }
+    
+    startDateInput.value = startDate.toISOString().split('T')[0];
+    endDateInput.value = endDate.toISOString().split('T')[0];
+    
+    // Submit the form
+    document.getElementById('filterForm').submit();
+}
+function exportToExcel() {
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    
+    // Prepare data for Excel
+    const excelData = [
+        ['Employee Attendance Report'],
+        [''],
+        ['Employee Information'],
+        ['Name:', '{{ employee.name }}'],
+        ['Job Role:', '{{ employee.job_role or "Not assigned" }}'],
+        ['Employee ID:', '{{ employee.unique_id_number }}'],
+        [''],
+        ['Attendance Summary'],
+        ['Total Records:', '{{ total_days }}'],
+        ['Present Days:', '{{ present_days }}'],
+        ['Total Hours:', '{{ total_hours }} hrs'],
+        [''],
+        ['Attendance Details'],
+        ['Sl.No', 'Date', 'Day', 'Status', 'Check-in Time', 'Check-out Time', 'Duration']
+    ];
+    
+    // Add attendance records
+    {% for record in processed_records %}
+    excelData.push([
+        '{{ loop.index }}',
+        '{{ record.date }}',
+        '{{ record.day_name }}',
+        '{{ record.status }}',
+        '{{ record.checkin_time }}',
+        '{{ record.checkout_time }}',
+        '{{ record.duration_hours }}'
+    ]);
+    {% endfor %}
+    
+    // Create worksheet
+    const ws = XLSX.utils.aoa_to_sheet(excelData);
+    
+    // Set column widths
+    ws['!cols'] = [
+        { width: 8 },   // Sl.No
+        { width: 12 },  // Date
+        { width: 12 },  // Day
+        { width: 15 },  // Status
+        { width: 15 },  // Check-in
+        { width: 15 },  // Check-out
+        { width: 18 }   // Duration
+    ];
+    
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Attendance Report');
+    
+    // Generate and download file
+    const fileName = '{{ employee.name }}_Attendance_Report.xlsx';
+    XLSX.writeFile(wb, fileName);
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('exportModal'));
+    if (modal) modal.hide();
+}
+
+function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(18);
+    doc.text('Employee Attendance Report', 105, 20, { align: 'center' });
+    
+    // Add employee information
+    doc.setFontSize(12);
+    doc.text('Employee Information:', 20, 40);
+    doc.setFontSize(10);
+    doc.text(`Name: {{ employee.name }}`, 20, 50);
+    doc.text(`Job Role: {{ employee.job_role or 'Not assigned' }}`, 20, 57);
+    doc.text(`Employee ID: {{ employee.unique_id_number }}`, 20, 64);
+    
+    // Add summary
+    doc.setFontSize(12);
+    doc.text('Attendance Summary:', 20, 80);
+    doc.setFontSize(10);
+    doc.text(`Total Records: {{ total_days }}`, 20, 90);
+    doc.text(`Present Days: {{ present_days }}`, 20, 97);
+    doc.text(`Total Hours: {{ total_hours }} hrs`, 20, 104);
+    
+    // Prepare table data
+    const tableData = [
+        ['Sl.No', 'Date', 'Day', 'Status', 'Check-in', 'Check-out', 'Duration']
+    ];
+    
+    {% for record in processed_records %}
+    tableData.push([
+        '{{ loop.index }}',
+        '{{ record.date }}',
+        '{{ record.day_name }}',
+        '{{ record.status }}',
+        '{{ record.checkin_time }}',
+        '{{ record.checkout_time }}',
+        '{{ record.duration }}'
+    ]);
+    {% endfor %}
+    
+    // Add table
+    doc.autoTable({
+        head: [tableData[0]],
+        body: tableData.slice(1),
+        startY: 120,
+        styles: {
+            fontSize: 8,
+            cellPadding: 2
+        },
+        headStyles: {
+            fillColor: [25, 118, 210],
+            textColor: 255
+        },
+        alternateRowStyles: {
+            fillColor: [245, 245, 245]
+        }
+    });
+    
+    // Generate and download file
+    const fileName = '{{ employee.name }}_Attendance_Report.pdf';
+    doc.save(fileName);
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('exportModal'));
+    if (modal) modal.hide();
+}
+
+// Sorting functionality
+let currentSortColumn = 'date';
+let currentSortDirection = 'asc';
+
+// Initialize sorting when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click event listeners to sortable headers
+    document.querySelectorAll('.sortable').forEach(header => {
+        header.addEventListener('click', function() {
+            const sortType = this.getAttribute('data-sort');
+            if (currentSortColumn === sortType) {
+                // Toggle direction if same column
+                currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                // New column, default to ascending
+                currentSortColumn = sortType;
+                currentSortDirection = 'asc';
+            }
+            
+            // Update dropdown to match
+            document.getElementById('sortSelect').value = sortType;
+            updateSortIcon();
+            sortTable();
+        });
+    });
+    
+    // Add event listener to sort dropdown
+    document.getElementById('sortSelect').addEventListener('change', function() {
+        currentSortColumn = this.value;
+        currentSortDirection = 'asc';
+        updateSortIcon();
+        sortTable();
+    });
+    
+    // Initialize sort direction button
+    document.getElementById('sortDirection').addEventListener('click', function() {
+        toggleSortDirection();
+    });
+});
+
+function toggleSortDirection() {
+    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+    updateSortIcon();
+    sortTable();
+}
+
+function updateSortIcon() {
+    const sortIcon = document.getElementById('sortIcon');
+    if (currentSortDirection === 'asc') {
+        sortIcon.className = 'fas fa-sort-up';
+    } else {
+        sortIcon.className = 'fas fa-sort-down';
+    }
+    
+    // Update header icons
+    document.querySelectorAll('.sortable .sort-icon').forEach(icon => {
+        icon.className = 'fas fa-sort ms-1 sort-icon';
+    });
+    
+    // Highlight current sort column
+    const currentHeader = document.querySelector(`[data-sort="${currentSortColumn}"]`);
+    if (currentHeader) {
+        const icon = currentHeader.querySelector('.sort-icon');
+        if (currentSortDirection === 'asc') {
+            icon.className = 'fas fa-sort-up ms-1 sort-icon text-primary';
+        } else {
+            icon.className = 'fas fa-sort-down ms-1 sort-icon text-primary';
+        }
+    }
+}
+
+function sortTable() {
+    const table = document.getElementById('attendanceTable');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    rows.sort((a, b) => {
+        let aValue, bValue;
+        
+        switch(currentSortColumn) {
+            case 'date':
+                aValue = new Date(a.cells[1].textContent.trim());
+                bValue = new Date(b.cells[1].textContent.trim());
+                break;
+            case 'day':
+                aValue = a.cells[2].textContent.trim();
+                bValue = b.cells[2].textContent.trim();
+                break;
+            case 'status':
+                aValue = a.cells[3].textContent.trim();
+                bValue = b.cells[3].textContent.trim();
+                break;
+            case 'checkin':
+                aValue = a.cells[4].textContent.trim();
+                bValue = b.cells[4].textContent.trim();
+                break;
+            case 'checkout':
+                aValue = a.cells[5].textContent.trim();
+                bValue = b.cells[5].textContent.trim();
+                break;
+            case 'duration':
+                // Extract numeric value from duration (e.g., "8.5 hrs" -> 8.5)
+                aValue = extractDurationHours(a.cells[6].textContent.trim());
+                bValue = extractDurationHours(b.cells[6].textContent.trim());
+                break;
+            default:
+                return 0;
+        }
+        
+        let comparison = 0;
+        if (aValue < bValue) comparison = -1;
+        if (aValue > bValue) comparison = 1;
+        
+        return currentSortDirection === 'asc' ? comparison : -comparison;
+    });
+    
+    // Re-append sorted rows
+    rows.forEach((row, index) => {
+        // Update serial number
+        row.cells[0].innerHTML = `<strong>${index + 1}</strong>`;
+        tbody.appendChild(row);
+    });
+}
+
+function extractDurationHours(durationText) {
+    if (durationText === '-' || durationText === '') return 0;
+    
+    // Extract numeric value from duration text
+    const match = durationText.match(/(\d+(?:\.\d+)?)/);
+    return match ? parseFloat(match[1]) : 0;
+}
+
+function printReport() {
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    
+    // Create print-friendly HTML
+    const printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>{{ employee.name }} - Attendance Report</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { text-align: center; margin-bottom: 30px; }
+                .info-section { margin-bottom: 20px; }
+                .info-section h3 { color: #1976d2; border-bottom: 2px solid #1976d2; padding-bottom: 5px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; font-weight: bold; }
+                .status-complete { color: #28a745; font-weight: bold; }
+                .status-checkedin { color: #ffc107; font-weight: bold; }
+                .status-norecord { color: #dc3545; font-weight: bold; }
+                @media print {
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>Employee Attendance Report</h1>
+                <p>Generated on: ${new Date().toLocaleDateString()}</p>
+            </div>
+            
+            <div class="info-section">
+                <h3>Employee Information</h3>
+                <p><strong>Name:</strong> {{ employee.name }}</p>
+                <p><strong>Job Role:</strong> {{ employee.job_role or 'Not assigned' }}</p>
+                <p><strong>Employee ID:</strong> {{ employee.unique_id_number }}</p>
+            </div>
+            
+            <div class="info-section">
+                <h3>Attendance Summary</h3>
+                <p><strong>Total Records:</strong> {{ total_days }}</p>
+                <p><strong>Present Days:</strong> {{ present_days }}</p>
+                <p><strong>Total Hours:</strong> {{ total_hours }} hrs</p>
+            </div>
+            
+            <div class="info-section">
+                <h3>Attendance Details</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sl.No</th>
+                            <th>Date</th>
+                            <th>Day</th>
+                            <th>Status</th>
+                            <th>Check-in Time</th>
+                            <th>Check-out Time</th>
+                            <th>Duration</th>
+                            <th>Login Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in processed_records %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ record.date }}</td>
+                            <td>{{ record.day_name }}</td>
+                            <td class="status-{{ record.status.lower().replace(' ', '') }}">{{ record.status }}</td>
+                            <td>{{ record.checkin_time }}</td>
+                            <td>{{ record.checkout_time }}</td>
+                            <td>{{ record.duration }}</td>
+                            <td>
+                                {% if record.late_login %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>Late Login
+                                </span>
+                                {% elif record.status == 'Complete' or record.status == 'Checked In' %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i>On Time
+                                </span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="no-print" style="margin-top: 30px; text-align: center;">
+                <button onclick="window.print()">Print Report</button>
+                <button onclick="window.close()">Close</button>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.focus();
+}
+</script>
 {% endblock %} 

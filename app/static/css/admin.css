@@ -455,3 +455,11 @@
         min-width: auto;
     }
 } 
+
+
+/* .wrap-text {
+    width: 200px;
+    border: 1px solid #000;
+    word-break: break-word;
+    white-space: normal;
+  } */

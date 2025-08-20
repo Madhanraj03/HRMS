@@ -37,7 +37,7 @@
     <div class="container mt-0">
         <div class="row justify-content-center">
             <div class="col-12 col-sm-10 col-md-8 col-lg-6">
-                <div class="card global-card shadow-sm">
+                <div class="card global-card">
                     <div class="card-header text-center">
                         <h3><i class="fas fa-clock me-2"></i>Employee Attendance</h3>
                     </div>
@@ -81,6 +81,11 @@
                                     <p><i class="fas fa-sign-out-alt me-2"></i><strong>Check-Out:</strong> {{ today_checkout or 'N/A' }}</p>
                                 </div>
                             </div>
+                            {% if late_login %}
+                            <div class="alert alert-warning mt-3">
+                                <i class="fas fa-exclamation-triangle me-2"></i><strong>Late Login Alert:</strong> You checked in after 9:30 AM today.
+                            </div>
+                            {% endif %}
                         </div>
                         {% if message %}
                         <div class="alert alert-global-info mt-3">

@@ -1,0 +1,477 @@
+{% extends 'admin/base.html' %}
+{% block title %}View All Users - Admin{% endblock %}
+{% block content %}
+<style>
+    /* Simple Table Design */
+    .users-table-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-top: 20px;
+    }
+    
+    .table {
+        margin-bottom: 0;
+    }
+    
+    .table thead th {
+        background: #1976d2;
+        color: white;
+        font-weight: 600;
+        padding: 12px 16px;
+        border-bottom: 2px solid #dee2e6;
+        font-size: 0.9rem;
+    }
+    
+    .table tbody tr {
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .table tbody tr:hover {
+        background: #f8f9fa;
+    }
+    
+    .table tbody tr:last-child {
+        border-bottom: none;
+    }
+    
+    .table tbody td {
+        padding: 12px 16px;
+        vertical-align: middle;
+        font-size: 0.9rem;
+    }
+    
+    /* User Avatar in Table */
+    .user-avatar-table {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.8rem;
+        margin-right: 10px;
+    }
+    
+    .user-info-table {
+        display: flex;
+        align-items: center;
+    }
+    
+    .user-details-table h6 {
+        margin: 0;
+        font-weight: 600;
+        color: #333;
+        font-size: 0.9rem;
+    }
+    
+    .user-details-table small {
+        color: #6c757d;
+        font-size: 0.8rem;
+    }
+    
+    /* Role Badge Styling */
+    .role-badge-table {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+        border: none;
+        display: inline-block;
+    }
+    
+    .role-badge-table.admin {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .role-badge-table.hr {
+        background: #ffc107;
+        color: #212529;
+    }
+    
+    .role-badge-table.employee {
+        background: #17a2b8;
+        color: white;
+    }
+    
+    /* Status Indicators */
+    .status-indicator-table {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 6px;
+    }
+    
+    .status-active-table {
+        background: #28a745;
+    }
+    
+    .status-inactive-table {
+        background: #dc3545;
+    }
+
+    /* Attendance Status */
+    .attendance-status-table {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .attendance-present {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .attendance-absent {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    /* Stats Cards Styling */
+    .stats-card {
+        background: linear-gradient(135deg, #1976d2 0%, #3c90e3 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 1.2rem;
+        margin-bottom: 20px;
+        box-shadow: 0 6px 20px rgba(25, 118, 210, 0.3);
+        border: none;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stats-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        transform: rotate(45deg);
+    }
+    
+    .stats-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+    }
+    
+    .stats-card h6 {
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+    
+    .stats-card small {
+        opacity: 0.8;
+        font-size: 0.75rem;
+    }
+    
+    /* Filter Section Styling */
+    .filter-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .filter-section .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    
+    .filter-section .form-control,
+    .filter-section .form-select {
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 0.6rem 0.8rem;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-section .form-control:focus,
+    .filter-section .form-select:focus {
+        border-color: #1976d2;
+        box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
+    }
+    
+    /* Responsive Table */
+    @media (max-width: 768px) {
+        .table-responsive {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .table thead th,
+        .table tbody td {
+            padding: 0.8rem 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .user-avatar-table {
+            width: 35px;
+            height: 35px;
+            font-size: 0.8rem;
+        }
+        
+        .role-badge-table {
+            font-size: 0.7rem;
+            padding: 0.3rem 0.6rem;
+        }
+    }
+    
+    /* Ensure sidebar compatibility */
+    .wrapper {
+        display: flex !important;
+        height: 100vh !important;
+    }
+    .sidebar {
+        width: 260px !important;
+        flex-shrink: 0 !important;
+        min-width: 260px !important;
+    }
+    .main-content {
+        flex: 1 !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+    }
+</style>
+
+                <div class="card global-card">
+    <div class="card-header text-center">
+        <h3><i class="fas fa-users me-2"></i>All Users Management</h3>
+        <p class="lead mb-0">Comprehensive view of all system users</p>
+    </div>
+    <div class="card-body">
+
+        <!-- Summary Statistics -->
+        <div class="row mb-4 g-3">
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <h6><i class="fas fa-users me-2"></i>Total Users</h6>
+                    <div class="stats-number">{{ users|length }}</div>
+                    <small>All system users</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <h6><i class="fas fa-user-tie me-2"></i>Employees</h6>
+                    <div class="stats-number">{{ users|selectattr('role', 'equalto', 'employee')|list|length }}</div>
+                    <small>Active employees</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <h6><i class="fas fa-user-cog me-2"></i>HR Users</h6>
+                    <div class="stats-number">{{ users|selectattr('role', 'equalto', 'hr')|list|length }}</div>
+                    <small>HR personnel</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <h6><i class="fas fa-user-shield me-2"></i>Admins</h6>
+                    <div class="stats-number">{{ users|selectattr('role', 'equalto', 'admin')|list|length }}</div>
+                    <small>System administrators</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="roleFilter" class="form-label"><i class="fas fa-filter me-1"></i>Filter by Role</label>
+                    <select class="form-select" id="roleFilter">
+                        <option value="">All Roles</option>
+                        <option value="employee">Employees</option>
+                        <option value="hr">HR Users</option>
+                        <option value="admin">Administrators</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="statusFilter" class="form-label"><i class="fas fa-toggle-on me-1"></i>Filter by Status</label>
+                    <select class="form-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="searchInput" class="form-label"><i class="fas fa-search me-1"></i>Search Users</label>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Search by name or username...">
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="users-table-container">
+            <div class="table-responsive">
+                <table class="table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-user me-2"></i>User</th>
+                            <th><i class="fas fa-user-tag me-2"></i>Role</th>
+                            <th><i class="fas fa-toggle-on me-2"></i>Status</th>
+                            <th><i class="fas fa-clock me-2"></i>Today's Attendance</th>
+                            <th><i class="fas fa-id-card me-2"></i>User ID</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+            {% for user in users %}
+                        <tr class="user-row" 
+                 data-role="{{ user.role }}" 
+                 data-status="{% if user.is_active %}active{% else %}inactive{% endif %}"
+                 data-username="{{ user.username }}"
+                 data-name="{% if user.employee_details and user.employee_details.name %}{{ user.employee_details.name }}{% elif user.name %}{{ user.name }}{% endif %}">
+                            <td>
+                                <div class="user-info-table">
+                                    <div class="user-avatar-table">
+                                        {% if user.employee_details and user.employee_details.name %}
+                                            {{ user.employee_details.name[0].upper() }}
+                                        {% elif user.name %}
+                                            {{ user.name[0].upper() }}
+                                        {% else %}
+                                            {{ user.username[0].upper() }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="user-details-table">
+                                        <h6>
+                                {% if user.employee_details and user.employee_details.name %}
+                                    {{ user.employee_details.name }}
+                                {% elif user.name %}
+                                    {{ user.name }}
+                                {% else %}
+                                    {{ user.username }}
+                                {% endif %}
+                            </h6>
+                                        <small>{{ user.username }}</small>
+                                    </div>
+                        </div>
+                            </td>
+                            <td>
+                            {% if user.role == 'admin' %}
+                                    <span class="role-badge-table admin">
+                                    <i class="fas fa-user-shield me-1"></i>Admin
+                                </span>
+                            {% elif user.role == 'hr' %}
+                                    <span class="role-badge-table hr">
+                                    <i class="fas fa-user-cog me-1"></i>HR
+                                </span>
+                            {% else %}
+                                    <span class="role-badge-table employee">
+                                    <i class="fas fa-user-tie me-1"></i>Employee
+                                </span>
+                            {% endif %}
+                            </td>
+                            <td>
+                                <span class="status-indicator-table {% if user.is_active %}status-active-table{% else %}status-inactive-table{% endif %}"></span>
+                                {% if user.is_active %}
+                                    <span class="text-success fw-bold">Active</span>
+                                {% else %}
+                                    <span class="text-danger fw-bold">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                        {% if user.attendance_stats %}
+                            {% if user.attendance_stats.today_status == 'Present' %}
+                                        <span class="attendance-status-table attendance-present">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    <strong>Present</strong>
+                                    {% if user.attendance_stats.login_time %}
+                                    <small class="ms-2">{{ user.attendance_stats.login_time }}</small>
+                                    {% endif %}
+                                        </span>
+                            {% else %}
+                                        <span class="attendance-status-table attendance-absent">
+                                    <i class="fas fa-times-circle me-1"></i>
+                                    <strong>Absent</strong>
+                                    {% if user.attendance_stats.last_checkout %}
+                                    <small class="ms-2">{{ user.attendance_stats.last_checkout }}</small>
+                                    {% endif %}
+                                        </span>
+                            {% endif %}
+                                {% else %}
+                                    <span class="text-muted">No data</span>
+                        {% endif %}
+                            </td>
+                            <td>
+                                <span style="font-weight: bold; color: #000;">{{ user.id }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- No Users Message -->
+        <div id="noUsersMessage" class="text-center py-5" style="display: none;">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No users found</h5>
+            <p class="text-muted">Try adjusting your filters or search criteria.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const roleFilter = document.getElementById('roleFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const searchInput = document.getElementById('searchInput');
+    const usersTableBody = document.getElementById('usersTableBody');
+    const noUsersMessage = document.getElementById('noUsersMessage');
+
+    function filterUsers() {
+        const selectedRole = roleFilter.value;
+        const selectedStatus = statusFilter.value;
+        const searchTerm = searchInput.value.toLowerCase();
+        
+        const userRows = document.querySelectorAll('.user-row');
+        let visibleCount = 0;
+
+        userRows.forEach(row => {
+            const role = row.dataset.role;
+            const status = row.dataset.status;
+            const username = row.dataset.username.toLowerCase();
+            const name = row.dataset.name.toLowerCase();
+
+            const roleMatch = !selectedRole || role === selectedRole;
+            const statusMatch = !selectedStatus || status === selectedStatus;
+            const searchMatch = !searchTerm || username.includes(searchTerm) || name.includes(searchTerm);
+
+            if (roleMatch && statusMatch && searchMatch) {
+                row.style.display = 'table-row';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Show/hide no users message
+        if (visibleCount === 0) {
+            noUsersMessage.style.display = 'block';
+        } else {
+            noUsersMessage.style.display = 'none';
+        }
+    }
+
+    // Add event listeners
+    roleFilter.addEventListener('change', filterUsers);
+    statusFilter.addEventListener('change', filterUsers);
+    searchInput.addEventListener('input', filterUsers);
+});
+</script>
+{% endblock %} 

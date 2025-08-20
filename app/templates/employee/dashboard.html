@@ -1,24 +1,29 @@
 {% extends 'employee/base.html' %}
 {% block title %}Employee Dashboard{% endblock %}
 {% block content %}
-<div class="card global-card shadow-sm">
+    <div class="card global-card">
     <div class="card-header text-center">
         <h3><i class="fas fa-user me-2"></i>Welcome, {{ employee_name or 'Employee' }}!</h3>
         <p class="lead">Your Dashboard</p>
     </div>
     <div class="card-body">
         <div class="row mb-4 g-2">
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-3">
                 <a href="/employee/attendance" class="btn btn-global-primary w-100">
                     <i class="fas fa-clock me-2"></i>Attendance
                 </a>
             </div>
-            <div class="col-12 col-md-4">
-                <a href="{{ url_for('main.employee_profile') }}" class="btn btn-global-info w-100">
+            <div class="col-12 col-md-3">
+                <a href="/employee/attendance_report" class="btn btn-global-success w-100">
+                    <i class="fas fa-chart-line me-2"></i>Attendance Report
+                </a>
+            </div>
+            <div class="col-12 col-md-3">
+                <a href="{{ url_for('employee.employee_profile') }}" class="btn btn-global-info w-100">
                     <i class="fas fa-user me-2"></i>Profile
                 </a>
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-3">
                 <a href="{{ url_for('main.leave_request') }}" class="btn btn-global-warning w-100">
                     <i class="fas fa-calendar-plus me-2"></i>Leave Requests
                 </a>
@@ -34,6 +39,11 @@
                     <p><i class="fas fa-sign-out-alt me-2"></i><strong>Check-Out:</strong> {{ today_checkout or 'Not checked out yet' }}</p>
                 </div>
             </div>
+            {% if late_login %}
+            <div class="alert alert-warning mt-3">
+                <i class="fas fa-exclamation-triangle me-2"></i><strong>Late Login Alert:</strong> You checked in after 9:30 AM today.
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

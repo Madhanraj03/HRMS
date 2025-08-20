@@ -8,8 +8,19 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         /* Compact input fields for login */
+        .background {
+            position: fixed; 
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(125% 125% at 50% 90%, #fff 20%, #0080ff 100%);
+            z-index: -1; 
+        }
+
         .login-form .form-control {
             padding: 0.5rem 0.75rem !important;
             height: auto !important;
@@ -73,19 +84,15 @@
     </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-12 col-sm-10 col-md-8 col-lg-5">
-                <div class="card login-card shadow-sm">
+    <div class="background"></div>
+    <div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+        <div class="row justify-content-center w-100">
+            <div class="col-12 col-sm-10 col-md-8 col-lg-5 mx-auto">
+                <div class="card login-card">
                     <div class="card-header text-center">
                         <h3><i class="fas fa-sign-in-alt me-2"></i>Login</h3>
                     </div>
                     <div class="card-body">
-                        {% if error %}
-                            <div class="alert alert-global-danger" role="alert">
-                                <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
-                            </div>
-                        {% endif %}
                         <form method="POST" action="{{ url_for('main.login') }}" class="global-form login-form">
                             <div class="mb-3">
                                 <label for="username" class="form-label">
@@ -113,7 +120,25 @@
             </div>
         </div>
     </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span id="errorMessage"></span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
+        // Password toggle functionality
         document.getElementById('togglePassword').addEventListener('click', function () {
             const passwordInput = document.getElementById('password');
             const eyeIcon = document.getElementById('eyeIcon');
@@ -126,6 +151,19 @@
                 eyeIcon.classList.remove('fa-eye-slash');
                 eyeIcon.classList.add('fa-eye');
             }
+        });
+
+        // Toast functionality for flash messages
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for flash messages
+            const flashMessages = {{ get_flashed_messages(with_categories=true) | tojson }};
+            flashMessages.forEach(function(messageData) {
+                if (messageData[0] === 'error') {
+                    const errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
+                    document.getElementById('errorMessage').textContent = messageData[1];
+                    errorToast.show();
+                }
+            });
         });
     </script>
 </body>

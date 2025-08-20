@@ -1,7 +1,7 @@
 {% extends 'hr/base.html' %}
 {% block title %}Leave Requests{% endblock %}
 {% block content %}
-<div class="card global-card shadow-sm">
+    <div class="card global-card">
     <div class="card-header text-center">
         <h3><i class="fas fa-calendar-alt me-2"></i>Leave Requests</h3>
     </div>
@@ -29,8 +29,8 @@
                     <tr>
                         <td><strong>{{ req.employee.name }}</strong></td>
                         <td><span class="badge badge-global-warning">{{ req.leave_type }}</span></td>
-                        <td class="text-nowrap"><code>{{ req.start_date.strftime('%Y-%m-%d') }}</code></td>
-                        <td class="text-nowrap"><code>{{ req.end_date.strftime('%Y-%m-%d') }}</code></td>
+                        <td class="text-nowrap"><code style="color: black;">{{ req.start_date.strftime('%Y-%m-%d') }}</code></td>
+                        <td class="text-nowrap"><code style="color: black;">{{ req.end_date.strftime('%Y-%m-%d') }}</code></td>
                         <td class="text-nowrap">{{ req.reason }}</td>
                         <td class="text-nowrap">
                             {% if req.status == 'Pending' %}
@@ -45,15 +45,18 @@
                         </td>
                         <td>
                             {% if req.status == 'Pending' %}
-                            <form method="POST" style="display:inline;">
+                            <form method="POST" class="d-flex align-items-center gap-2">
                                 <input type="hidden" name="leave_id" value="{{ req.id }}">
-                                <button type="submit" name="action" value="Accepted" class="btn btn-global-success btn-sm">
-                                    <i class="fas fa-check"></i> Accept
+                              
+                                <button type="submit" name="action" value="Accepted" class="btn btn-global-success btn-sm text-nowrap">
+                                  <i class="fas fa-check"></i> Accept
                                 </button>
-                                <button type="submit" name="action" value="Rejected" class="btn btn-global-danger btn-sm">
-                                    <i class="fas fa-times"></i> Reject
+                              
+                                <button type="submit" name="action" value="Rejected" class="btn btn-global-danger btn-sm text-nowrap">
+                                  <i class="fas fa-times"></i> Reject
                                 </button>
-                            </form>
+                              </form>
+                              
                             {% else %}
                             <span class="text-muted"><i class="fas fa-ban me-1"></i>No action</span>
                             {% endif %}

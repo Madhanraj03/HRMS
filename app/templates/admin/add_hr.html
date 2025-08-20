@@ -53,7 +53,7 @@
         box-shadow: none;
     }
 </style>
-<div class="card admin-card shadow-sm">
+    <div class="card admin-card">
     <div class="card-header">
         <h3 class="mb-0">Add New HR User</h3>
         <p class=" mb-0">Create a new HR user account</p>
@@ -68,6 +68,13 @@
         
         <form method="POST" class="needs-validation admin-form" novalidate>
             <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="name" class="form-label">Full Name *</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                    <div class="invalid-feedback">
+                        Please provide a full name.
+                    </div>
+                </div>
                 <div class="col-md-6 mb-3">
                     <label for="username" class="form-label">Username *</label>
                     <input type="text" class="form-control" id="username" name="username" required>

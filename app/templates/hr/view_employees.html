@@ -1,7 +1,7 @@
 {% extends 'hr/base.html' %}
 {% block title %}View Employees{% endblock %}
 {% block content %}
-<div class="card global-card shadow-sm">
+    <div class="card global-card">
     <div class="card-header text-center">
         <h3><i class="fas fa-users me-2"></i>All Employees</h3>
     </div>
@@ -22,6 +22,7 @@
                 <thead class="table-header">
                     <tr>
                         <th class="no-wrap"><i class="fas fa-user me-1"></i>Name</th>
+                        <th class="no-wrap"><i class="fas fa-venus-mars me-1"></i>Gender</th>
                         <th class="no-wrap"><i class="fas fa-briefcase me-1"></i>Job Role</th>
                         <th class="no-wrap"><i class="fas fa-map-marker-alt me-1"></i>Address</th>
                         <th class="no-wrap"><i class="fas fa-phone me-1"></i>Phone Number</th>
@@ -36,6 +37,7 @@
                     {% for emp in employees %}
                     <tr>
                         <td><strong>{{ emp.name }}</strong></td>
+                        <td><span style="color: #000; font-weight: 500;">{{ emp.gender }}</span></td>
                         <td>{{ emp.job_role or '-' }}</td>
                         <td>{{ emp.address }}</td>
                         <td>{{ emp.phone_number }}</td>
@@ -50,6 +52,11 @@
                                 <a href="/hr/edit_employee/{{ emp.id }}" class="btn btn-global-primary btn-sm">
                                     <i class="fas fa-edit"></i> Edit
                                 </a>
+                                <!-- <form method="POST" action="/hr/reset_employee_password/{{ emp.id }}" style="display:inline;" onsubmit="return confirm('Reset password for {{ emp.name }}? They will receive a new temporary password.');">
+                                    <button type="submit" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-key"></i> Reset PW
+                                    </button>
+                                </form> -->
                                 <form method="POST" action="/hr/delete_employee/{{ emp.id }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this employee? This will also delete all their attendance and leave records.');">
                                     <button type="submit" class="btn btn-global-danger btn-sm">
                                         <i class="fas fa-trash"></i> Delete

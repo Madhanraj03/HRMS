@@ -1,7 +1,7 @@
 {% extends 'employee/base.html' %}
 {% block title %}Edit Profile{% endblock %}
 {% block content %}
-<div class="card shadow-sm mt-4">
+    <div class="card global-card mt-4">
     <div class="card-header text-center">
         <h3>Edit My Profile</h3>
     </div>
@@ -32,7 +32,7 @@
             </div>
             <div class="col-12 col-md-6 offset-md-3 mb-2 d-grid gap-2 d-md-flex justify-content-md-center">
                 <button type="submit" class="btn btn-primary" style="min-width: 120px;">Save Changes</button>
-                <a href="{{ url_for('main.employee_profile') }}" class="btn btn-secondary" style="min-width: 120px;">Cancel</a>
+                <a href="{{ url_for('employee.employee_profile') }}" class="btn btn-secondary" style="min-width: 120px;">Cancel</a>
             </div>
         </form>
     </div>

@@ -1,7 +1,7 @@
 {% extends 'admin/base.html' %}
 {% block title %}View HR Users - Admin{% endblock %}
 {% block content %}
-<div class="card global-card shadow-sm">
+    <div class="card global-card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <div>
             <h3 class="mb-0 header-title ">HR User Management</h3>
@@ -19,6 +19,7 @@
                     <thead class="table-header">
                     <tr>
                         <th>ID</th>
+                        <th>Name</th>
                         <th>Username</th>
                         <th>Role</th>
                         <th>Actions</th>
@@ -28,7 +29,8 @@
                     {% for hr_user in hr_users %}
                     <tr>
                         <td>{{ hr_user.id }}</td>
-                        <td><strong>{{ hr_user.username }}</strong></td>
+                        <td><strong>{{ hr_user.name or 'N/A' }}</strong></td>
+                        <td>{{ hr_user.username }}</td>
                         <td >
                             <span class="badge badge-admin-warning">
                                 <i class="fas fa-user-tie me-1"></i>{{ hr_user.role }}
@@ -37,7 +39,7 @@
                         <td class="delete-btn">
                             <form method="POST" action="{{ url_for('admin.delete_hr', hr_id=hr_user.id) }}" 
                                   style="display: inline;" 
-                                  onsubmit="return confirm('Are you sure you want to delete this HR user?')">
+                                  onsubmit="return c onfirm('Are you sure you want to delete this HR user?')">
                                 <button type="submit" class="btn btn-admin-danger btn-sm">
                                     <i class="fas fa-trash"></i> Delete
                                 </button>
