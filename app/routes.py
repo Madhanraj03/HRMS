@@ -901,11 +901,26 @@ def employee_attendance_report():
             elif not rec.checkout_time:
                 status = "Checked In"
             
+            import pytz
+            utc = pytz.utc
+            ist = pytz.timezone('Asia/Kolkata')
+            if rec.checkin_time:
+                dt_utc = datetime.combine(rec.date, rec.checkin_time).replace(tzinfo=utc)
+                dt_ist = dt_utc.astimezone(ist)
+                checkin_time_str = dt_ist.strftime('%I:%M %p')
+            else:
+                checkin_time_str = '-'
+            if rec.checkout_time:
+                dt_utc = datetime.combine(rec.date, rec.checkout_time).replace(tzinfo=utc)
+                dt_ist = dt_utc.astimezone(ist)
+                checkout_time_str = dt_ist.strftime('%I:%M %p')
+            else:
+                checkout_time_str = '-'
             attendance_list.append({
                 'date': rec.date.strftime('%Y-%m-%d'),
                 'day_name': rec.date.strftime('%A'),
-                'checkin_time': rec.checkin_time.strftime('%I:%M:%S %p') if rec.checkin_time else '-',
-                'checkout_time': rec.checkout_time.strftime('%I:%M:%S %p') if rec.checkout_time else '-',
+                'checkin_time': checkin_time_str,
+                'checkout_time': checkout_time_str,
                 'duration': duration or '-',
                 'duration_hours': duration_hours,
                 'status': status,

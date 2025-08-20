@@ -161,12 +161,24 @@ def view_users():
                 
                 # Get today's login time if present
                 if today_attendance and today_attendance.checkin_time:
-                    user_info['attendance_stats']['login_time'] = today_attendance.checkin_time.strftime('%I:%M %p')
+                    # Convert UTC to IST for check-in time
+                    import pytz
+                    utc = pytz.utc
+                    ist = pytz.timezone('Asia/Kolkata')
+                    dt_utc = today_attendance.checkin_time.replace(tzinfo=utc)
+                    dt_ist = dt_utc.astimezone(ist)
+                    user_info['attendance_stats']['login_time'] = dt_ist.strftime('%I:%M %p')
                 
                 # Get last checkout time
                 last_attendance = Attendance.query.filter_by(employee_id=employee.id).order_by(Attendance.date.desc()).first()
                 if last_attendance and last_attendance.checkout_time:
-                    user_info['attendance_stats']['last_checkout'] = last_attendance.checkout_time.strftime('%I:%M %p - %Y-%m-%d')
+                    # Convert UTC to IST for checkout time
+                    import pytz
+                    utc = pytz.utc
+                    ist = pytz.timezone('Asia/Kolkata')
+                    dt_utc = last_attendance.checkout_time.replace(tzinfo=utc)
+                    dt_ist = dt_utc.astimezone(ist)
+                    user_info['attendance_stats']['last_checkout'] = dt_ist.strftime('%I:%M %p - %Y-%m-%d')
                 
                 # Get leave statistics
                 total_leaves = LeaveRequest.query.filter_by(employee_id=employee.id).count()
