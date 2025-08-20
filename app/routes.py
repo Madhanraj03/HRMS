@@ -1,3 +1,4 @@
+import pytz
 from flask import render_template, request, redirect, url_for, session, flash, Blueprint, send_file, abort
 from functools import wraps
 from app import db
@@ -131,10 +132,19 @@ def employee_attendance():
                     datetime.combine(today, datetime.now().time()) -
                     datetime.combine(today, latest.checkin_time)
                 ).seconds
-            today_checkin_24 = latest.checkin_time.strftime('%H:%M:%S') if latest.checkin_time else None
-            today_checkout_24 = latest.checkout_time.strftime('%H:%M:%S') if latest.checkout_time else None
-            today_checkin_12 = latest.checkin_time.strftime('%I:%M:%S %p') if latest.checkin_time else None
-            today_checkout_12 = latest.checkout_time.strftime('%I:%M:%S %p') if latest.checkout_time else None
+            # Convert UTC to IST for check-in and check-out times
+            utc = pytz.utc
+            ist = pytz.timezone('Asia/Kolkata')
+            if latest.checkin_time:
+                dt_utc = datetime.combine(today, latest.checkin_time).replace(tzinfo=utc)
+                dt_ist = dt_utc.astimezone(ist)
+                today_checkin_24 = dt_ist.strftime('%H:%M:%S')
+                today_checkin_12 = dt_ist.strftime('%I:%M:%S %p')
+            if latest.checkout_time:
+                dt_utc = datetime.combine(today, latest.checkout_time).replace(tzinfo=utc)
+                dt_ist = dt_utc.astimezone(ist)
+                today_checkout_24 = dt_ist.strftime('%H:%M:%S')
+                today_checkout_12 = dt_ist.strftime('%I:%M:%S %p')
     else:
         print("No employee record found for this user.")
     # Check if today's check-in was late
@@ -180,12 +190,19 @@ def employee_dashboard():
                 attendances = Attendance.query.filter_by(employee_id=employee.id, date=today).order_by(Attendance.checkin_time).all()
                 if attendances:
                     latest = attendances[-1]
+                    # Convert UTC to IST for check-in and check-out times
+                    utc = pytz.utc
+                    ist = pytz.timezone('Asia/Kolkata')
                     if latest.checkin_time:
-                        today_checkin_24 = latest.checkin_time.strftime('%H:%M:%S')
-                        today_checkin_12 = latest.checkin_time.strftime('%I:%M:%S %p')
+                        dt_utc = datetime.combine(today, latest.checkin_time).replace(tzinfo=utc)
+                        dt_ist = dt_utc.astimezone(ist)
+                        today_checkin_24 = dt_ist.strftime('%H:%M:%S')
+                        today_checkin_12 = dt_ist.strftime('%I:%M:%S %p')
                     if latest.checkout_time:
-                        today_checkout_24 = latest.checkout_time.strftime('%H:%M:%S')
-                        today_checkout_12 = latest.checkout_time.strftime('%I:%M:%S %p')
+                        dt_utc = datetime.combine(today, latest.checkout_time).replace(tzinfo=utc)
+                        dt_ist = dt_utc.astimezone(ist)
+                        today_checkout_24 = dt_ist.strftime('%H:%M:%S')
+                        today_checkout_12 = dt_ist.strftime('%I:%M:%S %p')
                     if latest.checkin_time and latest.checkout_time:
                         worked_seconds = (
                             datetime.combine(today, latest.checkout_time) -
