@@ -88,8 +88,9 @@ def add_hr():
         elif User.query.filter_by(username=username).first():
             message = 'Username already exists.'
         else:
-            # Create new HR user
-            new_hr = User(username=username, password=password, role='hr', name=name)
+            # Create new HR user with hashed password
+            new_hr = User(username=username, role='hr', name=name)
+            new_hr.set_password(password)
             db.session.add(new_hr)
             db.session.commit()
             message = 'HR user added successfully!'
