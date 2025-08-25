@@ -17,7 +17,8 @@ A Flask-based HR management system with employee attendance tracking, leave mana
 - **Database**: PostgreSQL (Neon)
 - **ORM**: SQLAlchemy
 - **Authentication**: Custom password system with PBKDF2 hashing
-- **Frontend**: HTML, CSS, JavaScript
+- **Frontend**: HTML, CSS, JavaScript ,Bootstrap
+- 
 - **Deployment**: Render
 
 ## Local Development Setup
